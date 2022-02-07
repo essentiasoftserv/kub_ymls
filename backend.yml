@@ -1,0 +1,43 @@
+#backend
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  backend
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app:  backend
+  template:
+    metadata:
+      labels:
+        app:  backend
+    spec:
+      containers:
+      - name: backend
+        image: localhost:5001/backend #repo link
+        command:
+          - gunicorn
+          - wsgi:application
+          - '--access-logfile'
+          - '-'
+          - '-b'
+          - 0.0.0.0:8000
+        resources:
+          limits:
+            cpu: 500m
+          requests:
+            cpu: 200m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name:  backend
+spec:
+  selector:
+    app:  backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
